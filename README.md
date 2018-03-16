@@ -3,7 +3,8 @@
 
 dockerCentos里是基于Centos镜像下载安装了nginx。<BR>
 # nginx镜像使用方法
-进入dockerCentos目录查看Dockerfile可知,已经暴露了内部的80端口,下里执行如下命令构建镜像：<BR>
+进入dockerCentos目录查看Dockerfile可知,已经暴露了内部的80端口,下面执行如下命令构建镜像：
+> 快慢看网速一般小5分钟<BR>
 ```
 docker build -t nginx_01 . 注意后面的点
 ```
@@ -20,9 +21,31 @@ docker build -t nginx_01 . 注意后面的点
 docker start  <容器ID or 容器名>
 ```
 # php镜像
-php镜像试验与nginx类似，先构建镜像然后运行
+php镜像试验与nginx类似，先构建镜像然后运行<BR>
+**但是构建时间一般得半个多小时吧**，所以可以去官方镜像库搜索我曾经构建好的镜像pull下来就行<BR>
+```
+docker pull masterliu/php-fpm
+```
+
+启动php容器
+```
+docker run --name php71_13 -v ~/www:/data/web  -d php_01
+```
+php不必暴露9000端口
 # 容器互联
-nginx和php两个容器的网络互联，在docker高版本时都是默认自动可以互联的，且ip好像都是172.17.0.0/16网段的，
-nginx容器只需配置fastcgi_pass应该就行了。<BR>
-**还有一点要注意**：程序目录，也就是php程序的目录确保在两个容器一样。如果不知道怎么搞的话，
-那就每个容器中，一样的目录里都拷贝一份就行。本例中nginx容器和php容器的php程序目录都已经设置成/data/web了，所以如果修改容器的话，记得两个容器的/data/web目录都有才行
+docker服务器自己维护有一个网桥，且ip好像都是172.17.0.0/16网段的。<BR>
+nginx和php两个容器的网络互联，在docker高版本时都是默认自动可以互联的，也可以自己配置。
+nginx容器只需配置fastcgi_pass为php的ip地址:9000应该就行了。<BR>
+比如php容器启动后是172.17.0.3，那么nginx容器里的配置就是<BR>
+```
+	fastcgi_pass 172.17.0.3:9000
+```
+# 还有一点要注意，非常重要
+因为我们使用了nginx容器和php容器，这是两个独立的容器。那么对于程序目录，也就是php程序的目录确保在两个容器一样。如果不知道怎么搞的话，
+那就每个容器中，一样的目录里都拷贝一份就行。本例中nginx容器和php容器的php程序目录都已经设置成/data/web了，记得两个容器的/data/web目录都有才行。<BR>
+**还有一种办法**：那就是把宿主机的php程序目录挂载到两个容器相同的路径下，这也是开发时最好的方法
+```
+docker run --name php71_13 -v ~/www:/data/web  -d php_01
+docker run --name nginx -v ~/www:/data/web -p 80:80 -d nginx_01
+```
+大家看到了吗，-v指定的参数都一样才行。

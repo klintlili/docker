@@ -1,8 +1,9 @@
 FROM centos:6.9
+#指定centos:6.9来安装php，去掉6.9默认就是:latest最新的镜像
 MAINTAINER by masterliu
 WORKDIR /usr/local/src
 
-#设置nginx版本
+#设置PHP版本，最好去这些网站看看还维护不
 ENV VERSION="7.1.13"
 
 #安装wget,更换国内源下载php并解压
