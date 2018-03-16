@@ -40,6 +40,7 @@ nginx容器只需配置fastcgi_pass为php的ip地址:9000应该就行了。<BR>
 ```
 	fastcgi_pass 172.17.0.3:9000
 ```
+还有，php容器里使用PDO连接mysql容器，记得要用mysql的容器ip，<br>因为它们在不同的容器就好比是不同的电脑一样，访问时都按照远程访问就是了。
 # 还有一点要注意，非常重要
 因为我们使用了nginx容器和php容器，这是两个独立的容器。那么对于程序目录，也就是php程序的目录确保在两个容器一样。如果不知道怎么搞的话，
 那就每个容器中，一样的目录里都拷贝一份就行。本例中nginx容器和php容器的php程序目录都已经设置成/data/web了，记得两个容器的/data/web目录都有才行。<BR>
@@ -49,3 +50,7 @@ docker run --name php71_13 -v ~/www:/data/web  -d php_01
 docker run --name nginx -v ~/www:/data/web -p 80:80 -d nginx_01
 ```
 大家看到了吗，-v指定的参数都一样才行。
+
+# 我的镜像仓库
+我在dockerhub上的账号是masterliu
+，上述镜像都已经构建好，如果懒得构建的话可以去下载直接用
