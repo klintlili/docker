@@ -1,4 +1,5 @@
 FROM centos
+#默认是官方镜像centos的latest版本，如果需要指定哪个版本，请具体指定
 MAINTAINER by masterliu
 WORKDIR /usr/local/src
 
