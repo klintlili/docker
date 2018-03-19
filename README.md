@@ -32,6 +32,12 @@ docker pull masterliu/php-fpm
 docker run --name php71_13 -v ~/www:/data/web  -d php_01
 ```
 php不必暴露9000端口
+
+# php5.6.34镜像
+这是基于centos6.9构建的，构建出来的镜像大小是1.53G。
+不知道为啥这么大呢？
+我是不是得换一种方式构建我的镜像库呢？
+
 # 容器互联
 docker服务器自己维护有一个网桥，且ip好像都是172.17.0.0/16网段的。<BR>
 nginx和php两个容器的网络互联，在docker高版本时都是默认自动可以互联的，也可以自己配置。
@@ -54,3 +60,16 @@ docker run --name nginx -v ~/www:/data/web -p 80:80 -d nginx_01
 # 我的镜像仓库
 我在dockerhub上的账号是masterliu
 ，上述镜像都已经构建好，如果懒得构建的话可以去下载直接用
+
+# push我的本地镜像到hub上
+```
+docker tab 本地镜像  masterliu/php5634
+
+docker login 
+Username (masterliu):xxxxxx
+Password:xxxxx
+Login Succeeded
+
+#push到库里即可
+docker push masterliu/php5634
+```
