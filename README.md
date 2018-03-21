@@ -21,7 +21,7 @@ docker build -t nginx_01 . 注意后面的点
 docker start  <容器ID or 容器名>
 ```
 # php镜像
-php镜像试验与nginx类似，先构建镜像然后运行<BR>
+php镜像的构建与nginx类似，先构建镜像然后运行<BR>
 **但是构建时间一般得半个多小时吧**，所以可以去官方镜像库搜索我曾经构建好的镜像pull下来就行<BR>
 ```
 docker pull masterliu/php-fpm
@@ -31,7 +31,13 @@ docker pull masterliu/php-fpm
 ```
 docker run --name php71_13 -v ~/www:/data/web  -d php_01
 ```
-php不必暴露9000端口
+php不必暴露9000端口，因为容器内部互联，故无需暴露给宿主机
+
+# php5.6.34镜像
+这是基于centos6.9构建的，构建出来的镜像大小是1.53G。
+不知道为啥这么大呢？
+我是不是得换一种方式构建我的镜像库呢？
+
 # 容器互联
 docker服务器自己维护有一个网桥，且ip好像都是172.17.0.0/16网段的。<BR>
 nginx和php两个容器的网络互联，在docker高版本时都是默认自动可以互联的，也可以自己配置。
@@ -40,7 +46,14 @@ nginx容器只需配置fastcgi_pass为php的ip地址:9000应该就行了。<BR>
 ```
 	fastcgi_pass 172.17.0.3:9000
 ```
-还有，php容器里使用PDO连接mysql容器，记得要用mysql的容器ip，<br>因为它们在不同的容器就好比是不同的电脑一样，访问时都按照远程访问就是了。
+还有，php容器里使用PDO连接mysql容器，记得要用mysql的容器ip，<br>因为它们在不同的容器就好比是不同的电脑一样，访问时都按照远程访问就是了。<BR>
+# 共享网卡（joined方式）
+这也是容器互联的一种，上面那种使用具体IP的方式，有一个不好的地方。那就是容器不起动IP是不确定的，而且启动后并不能保证容器的IP固定，一旦IP有变，就得进入容器手动修改了。<BR>
+共享网卡方式就是在run容器时加入关键参数 **--network=container:容器名**
+```
+docker run --name=php70 -v ~/www:/data/web--network=container:nginx -d php:fpm-7.0.28
+```
+上述启动了php70的容器，让容器的网卡和容器名为nginx的另一个容器的网卡共享**。这样nginx容器和php70容器的mac和ip地址就完全一样了**。就可以用127.0.0.1来互相访问了，不必按照远程来访问。
 # 还有一点要注意，非常重要
 因为我们使用了nginx容器和php容器，这是两个独立的容器。那么对于程序目录，也就是php程序的目录确保在两个容器一样。如果不知道怎么搞的话，
 那就每个容器中，一样的目录里都拷贝一份就行。本例中nginx容器和php容器的php程序目录都已经设置成/data/web了，记得两个容器的/data/web目录都有才行。<BR>
@@ -54,3 +67,16 @@ docker run --name nginx -v ~/www:/data/web -p 80:80 -d nginx_01
 # 我的镜像仓库
 我在dockerhub上的账号是masterliu
 ，上述镜像都已经构建好，如果懒得构建的话可以去下载直接用
+
+# push我的本地镜像到hub上
+```
+docker tab 本地镜像  masterliu/php5634
+
+docker login 
+Username (masterliu):xxxxxx
+Password:xxxxx
+Login Succeeded
+
+#push到库里即可
+docker push masterliu/php5634
+```
